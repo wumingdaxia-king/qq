@@ -1,429 +1,502 @@
-# 网络安全教学演示 - QQ钓鱼页面（带文件保存功能）
-# 警告：仅用于网络安全教育，请勿用于非法用途
-
-from IPython.display import HTML, display
-import ipywidgets as widgets
-import os
-import datetime
-import json
-
-def create_qq_phishing_with_save():
-    """创建一个带文件保存功能的QQ钓鱼登录界面"""
-    
-    # 文件保存路径
-    save_path = r"C:\Users\叶萧\Desktop\密码收集"
-    
-    # 确保目录存在
-    if not os.path.exists(save_path):
-        os.makedirs(save_path)
-    
-    # 钓鱼页面HTML代码（包含文件保存功能的JavaScript）
-    phishing_html = """
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>QQ邮箱 - 安全登录</title>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                margin: 0;
-                padding: 0;
-                min-height: 100vh;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-            
-            .container {
-                width: 100%;
-                max-width: 400px;
-                padding: 20px;
-            }
-            
-            .login-box {
-                background: white;
-                border-radius: 10px;
-                padding: 40px 30px;
-                box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-            }
-            
-            .logo {
-                text-align: center;
-                margin-bottom: 30px;
-            }
-            
-            .logo-icon {
-                font-size: 60px;
-                line-height: 1;
-            }
-            
-            .logo-text {
-                font-size: 28px;
-                color: #1b74e4;
-                margin: 10px 0 5px 0;
-                font-weight: bold;
-            }
-            
-            .logo-sub {
-                color: #666;
-                font-size: 14px;
-                margin: 0;
-            }
-            
-            .url-bar {
-                background: #f8f9fa;
-                padding: 12px 15px;
-                border-radius: 6px;
-                margin-bottom: 20px;
-                font-size: 13px;
-                border: 1px solid #e9ecef;
-            }
-            
-            .url-bar .label {
-                color: #666;
-                margin-right: 5px;
-            }
-            
-            .url-bar .url {
-                color: #1b74e4;
-                font-family: monospace;
-                font-weight: bold;
-            }
-            
-            .warning {
-                background: #fff3cd;
-                border: 1px solid #ffeeba;
-                border-radius: 6px;
-                padding: 12px 15px;
-                margin-bottom: 20px;
-                color: #856404;
-                font-size: 13px;
-                display: none;
-            }
-            
-            .form-group {
-                margin-bottom: 20px;
-            }
-            
-            .form-group label {
-                display: block;
-                margin-bottom: 8px;
-                color: #333;
-                font-size: 14px;
-                font-weight: 500;
-            }
-            
-            .form-control {
-                width: 100%;
-                padding: 12px 15px;
-                border: 1px solid #ddd;
-                border-radius: 6px;
-                font-size: 14px;
-                box-sizing: border-box;
-                transition: border-color 0.3s;
-            }
-            
-            .form-control:focus {
-                outline: none;
-                border-color: #1b74e4;
-            }
-            
-            .remember {
-                display: flex;
-                align-items: center;
-                margin: 15px 0;
-            }
-            
-            .remember input {
-                margin-right: 8px;
-            }
-            
-            .remember label {
-                color: #666;
-                font-size: 14px;
-            }
-            
-            .login-btn {
-                width: 100%;
-                padding: 14px;
-                background: #1b74e4;
-                color: white;
-                border: none;
-                border-radius: 6px;
-                font-size: 16px;
-                font-weight: bold;
-                cursor: pointer;
-                transition: background 0.3s;
-            }
-            
-            .login-btn:hover {
-                background: #1662c4;
-            }
-            
-            .links {
-                text-align: center;
-                margin-top: 20px;
-            }
-            
-            .links a {
-                color: #1b74e4;
-                text-decoration: none;
-                font-size: 13px;
-                margin: 0 10px;
-            }
-            
-            .links a:hover {
-                text-decoration: underline;
-            }
-            
-            .status {
-                text-align: center;
-                margin-top: 15px;
-                padding: 10px;
-                border-radius: 6px;
-                display: none;
-            }
-            
-            .status.error {
-                background: #f8d7da;
-                color: #721c24;
-                display: block;
-            }
-            
-            .status.success {
-                background: #d4edda;
-                color: #155724;
-                display: block;
-            }
-            
-            .footer {
-                text-align: center;
-                margin-top: 20px;
-                color: white;
-                font-size: 12px;
-            }
-            
-            .footer a {
-                color: white;
-                text-decoration: none;
-            }
-            
-            .save-info {
-                background: #e8f4fd;
-                border-radius: 6px;
-                padding: 10px;
-                margin-top: 15px;
-                font-size: 12px;
-                color: #0056b3;
-                text-align: center;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="login-box">
-                <div class="url-bar">
-                    <span class="label">当前网址:</span>
-                    <span class="url">https://mail.qq.com.security-verify.com/login</span>
-                    <span style="color: #dc3545; margin-left: 10px;">⚠️ 注意验证域名</span>
-                </div>
-                
-                <div class="logo">
-                    <div class="logo-icon">🐧</div>
-                    <div class="logo-text">QQ邮箱</div>
-                    <div class="logo-sub">安全登录</div>
-                </div>
-                
-                <div class="warning" id="warning">
-                    ⚠️ 这是教学演示页面，请不要输入真实密码！
-                </div>
-                
-                <form id="loginForm" onsubmit="return false;">
-                    <div class="form-group">
-                        <label>QQ号码 / 邮箱账号</label>
-                        <input type="text" class="form-control" id="username" placeholder="请输入QQ号码或邮箱">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>密码</label>
-                        <input type="password" class="form-control" id="password" placeholder="请输入密码">
-                    </div>
-                    
-                    <div class="remember">
-                        <input type="checkbox" id="remember" checked>
-                        <label for="remember">记住登录状态</label>
-                    </div>
-                    
-                    <button type="button" class="login-btn" onclick="handleLogin()">登 录</button>
-                </form>
-                
-                <div class="links">
-                    <a href="#">忘记密码？</a>
-                    <a href="#">注册新账号</a>
-                    <a href="#">帮助中心</a>
-                </div>
-                
-                <div class="status" id="status"></div>
-                
-                <div class="save-info" id="saveInfo">
-                    📁 数据将保存到: C:\\Users\\叶萧\\Desktop\\密码收集
-                </div>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>QQ邮箱 - 安全登录</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #0b4f8a 0%, #1a7bc9 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .login-box {
+            background: white;
+            border-radius: 12px;
+            padding: 40px 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .url-bar {
+            background: #f8f9fa;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            font-size: 13px;
+            border: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .url-lock {
+            color: #28a745;
+            font-size: 14px;
+        }
+        
+        .url-text {
+            color: #1a73e8;
+            font-family: monospace;
+            font-weight: 500;
+            word-break: break-all;
+            flex: 1;
+        }
+        
+        .url-warning {
+            color: #dc3545;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .qq-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 15px;
+            background: #1a73e8;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: white;
+            box-shadow: 0 5px 15px rgba(26, 115, 232, 0.3);
+        }
+        
+        .logo h2 {
+            color: #202124;
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .logo p {
+            color: #5f6368;
+            font-size: 14px;
+        }
+        
+        .warning-note {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            color: #856404;
+            font-size: 13px;
+            text-align: center;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #202124;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+        }
+        
+        .options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 15px 0 25px;
+        }
+        
+        .remember {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #5f6368;
+            font-size: 14px;
+        }
+        
+        .forgot-link {
+            color: #1a73e8;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .forgot-link:hover {
+            text-decoration: underline;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-bottom: 20px;
+        }
+        
+        .login-btn:hover {
+            background: #1557b0;
+        }
+        
+        .qr-section {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .qr-placeholder {
+            width: 120px;
+            height: 120px;
+            background: #f5f5f5;
+            margin: 0 auto 10px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #5f6368;
+            font-size: 12px;
+            border: 1px dashed #dadce0;
+        }
+        
+        .qr-text {
+            color: #5f6368;
+            font-size: 13px;
+        }
+        
+        .footer-links {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 12px;
+        }
+        
+        .footer-links a {
+            color: #5f6368;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        
+        .footer-links a:hover {
+            color: #1a73e8;
+        }
+        
+        .message {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            display: none;
+        }
+        
+        .message.error {
+            background: #fce8e8;
+            color: #c5221f;
+            display: block;
+        }
+        
+        .message.success {
+            background: #e6f4ea;
+            color: #137333;
+            display: block;
+        }
+        
+        .save-info {
+            background: #e8f4fd;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 15px;
+            font-size: 12px;
+            color: #0056b3;
+            text-align: center;
+        }
+        
+        .data-panel {
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .data-panel h4 {
+            margin: 0 0 10px 0;
+            color: #202124;
+            font-size: 14px;
+        }
+        
+        .data-content {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            max-height: 200px;
+            overflow: auto;
+        }
+        
+        .data-item {
+            border-bottom: 1px solid #e0e0e0;
+            padding: 8px 0;
+        }
+        
+        .data-item:last-child {
+            border-bottom: none;
+        }
+        
+        .clear-btn {
+            margin-top: 10px;
+            padding: 8px 16px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .clear-btn:hover {
+            background: #c82333;
+        }
+        
+        .test-account {
+            background: #e8f4fd;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 12px;
+            color: #0056b3;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <div class="url-bar">
+                <span class="url-lock">🔒</span>
+                <span class="url-text">https://mail.qq.com.secure-verify.com/login</span>
+                <span class="url-warning">⚠️ 验证域名</span>
             </div>
             
-            <div class="footer">
-                <p>© 2024 腾讯公司 版权所有 | <a href="#">安全中心</a> | <a href="#">隐私政策</a></p>
-                <p style="font-size: 11px; margin-top: 5px;">⚠️ 教学演示 - 请勿输入真实密码</p>
+            <div class="warning-note" id="warningNote">
+                ⚠️ 教学演示 - 请不要输入真实密码！
+            </div>
+            
+            <div class="logo">
+                <div class="qq-icon">🐧</div>
+                <h2>QQ邮箱</h2>
+                <p>安全登录</p>
+            </div>
+            
+            <div class="input-group">
+                <label>QQ号码 / 邮箱账号</label>
+                <input type="text" class="input-field" id="username" placeholder="请输入QQ号码或邮箱" value="test_user">
+            </div>
+            
+            <div class="input-group">
+                <label>密码</label>
+                <input type="password" class="input-field" id="password" placeholder="请输入密码" value="test123">
+            </div>
+            
+            <div class="options">
+                <label class="remember">
+                    <input type="checkbox" id="remember" checked> 记住登录状态
+                </label>
+                <a href="#" class="forgot-link" onclick="return false;">忘记密码？</a>
+            </div>
+            
+            <button class="login-btn" onclick="handleLogin()">登 录</button>
+            
+            <div class="qr-section">
+                <div class="qr-placeholder">
+                    📱 扫码登录
+                </div>
+                <div class="qr-text">使用手机QQ扫码登录</div>
+            </div>
+            
+            <div class="footer-links">
+                <a href="#" onclick="return false;">帮助中心</a>
+                <a href="#" onclick="return false;">隐私政策</a>
+                <a href="#" onclick="return false;">意见反馈</a>
+            </div>
+            
+            <div class="message" id="message"></div>
+            
+            <div class="test-account">
+                📝 测试账号: test_user / test123
             </div>
         </div>
         
-        <script>
-            // 使用Jupyter通讯机制发送数据到Python
-            function handleLogin() {
-                var username = document.getElementById('username').value;
-                var password = document.getElementById('password').value;
-                var status = document.getElementById('status');
-                var warning = document.getElementById('warning');
-                var saveInfo = document.getElementById('saveInfo');
-                
-                if (username && password) {
-                    // 显示警告信息
-                    warning.style.display = 'block';
-                    
-                    // 准备数据
-                    var data = {
-                        username: username,
-                        password: password,
-                        timestamp: new Date().toLocaleString(),
-                        ip: '192.168.1.' + Math.floor(Math.random() * 255)
-                    };
-                    
-                    // 发送数据到Python（使用Jupyter的通讯机制）
-                    if (window.Jupyter !== undefined) {
-                        var kernel = Jupyter.notebook.kernel;
-                        kernel.execute("save_phishing_data('" + JSON.stringify(data).replace(/'/g, "\\'") + "')");
-                    }
-                    
-                    // 显示捕获的信息
-                    status.className = 'status error';
-                    status.innerHTML = '⚠️ 钓鱼攻击演示！<br>' +
-                                     '捕获的账号: ' + username + '<br>' +
-                                     '密码长度: ' + password.length + ' 个字符<br>' +
-                                     '时间: ' + new Date().toLocaleString() + '<br>' +
-                                     '<span style="color: #28a745; margin-top: 10px; display: block;">✅ 数据已保存到: C:\\Users\\叶萧\\Desktop\\密码收集</span>';
-                    
-                    // 更新保存信息
-                    saveInfo.innerHTML = '📁 最新数据已保存 - ' + new Date().toLocaleTimeString();
-                    
-                    // 在控制台输出（教学用）
-                    console.log('=== 钓鱼演示数据 ===');
-                    console.log('账号:', username);
-                    console.log('密码:', password);
-                    console.log('时间:', new Date().toLocaleString());
-                    
-                    // 清空密码
-                    setTimeout(function() {
-                        document.getElementById('password').value = '';
-                    }, 1000);
-                } else {
-                    status.className = 'status error';
-                    status.innerHTML = '请输入账号和密码';
-                }
+        <div class="data-panel">
+            <h4>📊 捕获的数据记录</h4>
+            <div class="data-content" id="dataContent">暂无数据</div>
+            <button class="clear-btn" onclick="clearData()">清空记录</button>
+            <div class="save-info" id="saveInfo">
+                💾 数据将保存到浏览器本地
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 存储捕获的数据
+        let capturedData = JSON.parse(localStorage.getItem('phishing_demo_data')) || [];
+        
+        // 更新数据显示
+        function updateDataPanel() {
+            const dataContent = document.getElementById('dataContent');
+            if (capturedData.length > 0) {
+                let html = '';
+                capturedData.slice(-5).reverse().forEach((item, index) => {
+                    html += `
+                        <div class="data-item">
+                            <div><strong>${capturedData.length - index}.</strong> ${item.timestamp}</div>
+                            <div>账号: ${item.username}</div>
+                            <div>密码: ${'•'.repeat(item.password.length)}</div>
+                        </div>
+                    `;
+                });
+                html += `<div style="margin-top: 10px; color: #5f6368;">总计: ${capturedData.length} 条记录</div>`;
+                dataContent.innerHTML = html;
+            } else {
+                dataContent.innerHTML = '暂无数据';
             }
             
-            // 显示教学提示
-            setTimeout(function() {
-                document.getElementById('warning').style.display = 'block';
-            }, 1000);
-        </script>
-    </body>
-    </html>
-    """
-    
-    # 定义保存数据的函数
-    def save_phishing_data(data_json):
-        """保存钓鱼数据到文件"""
-        try:
-            import json
-            from datetime import datetime
+            // 保存到localStorage
+            localStorage.setItem('phishing_demo_data', JSON.stringify(capturedData));
+        }
+        
+        // 处理登录
+        function handleLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const message = document.getElementById('message');
+            const warningNote = document.getElementById('warningNote');
+            const saveInfo = document.getElementById('saveInfo');
             
-            # 解析数据
-            data = json.loads(data_json)
+            if (username && password) {
+                // 显示警告
+                warningNote.style.display = 'block';
+                
+                // 准备数据
+                const timestamp = new Date().toLocaleString('zh-CN');
+                const data = {
+                    username: username,
+                    password: password,
+                    timestamp: timestamp,
+                    userAgent: navigator.userAgent.substring(0, 50) + '...'
+                };
+                
+                // 添加到数组
+                capturedData.push(data);
+                
+                // 更新显示
+                updateDataPanel();
+                
+                // 显示消息
+                message.className = 'message error';
+                message.innerHTML = `
+                    ⚠️ 钓鱼演示 - 数据已捕获<br>
+                    账号: ${username}<br>
+                    密码长度: ${password.length} 字符<br>
+                    时间: ${timestamp}<br>
+                    <span style="color: #137333; margin-top: 10px; display: block;">
+                    ✅ 数据已保存到浏览器
+                    </span>
+                `;
+                
+                // 更新保存信息
+                saveInfo.innerHTML = `💾 最后保存: ${timestamp}`;
+                
+                // 清空密码
+                document.getElementById('password').value = '';
+                
+                // 可选：下载数据到文件
+                downloadData(data);
+                
+            } else {
+                message.className = 'message error';
+                message.innerHTML = '请输入账号和密码';
+            }
+        }
+        
+        // 下载数据到文件
+        function downloadData(data) {
+            // 创建下载链接
+            const content = `时间: ${data.timestamp}\n账号: ${data.username}\n密码: ${data.password}\n用户代理: ${data.userAgent}\n${'='.repeat(50)}\n`;
             
-            # 文件保存路径
-            save_path = r"C:\Users\叶萧\Desktop\密码收集"
+            // 合并所有数据
+            let allContent = 'QQ邮箱钓鱼演示 - 捕获数据记录\n';
+            allContent += '='.repeat(50) + '\n\n';
+            capturedData.forEach((item, index) => {
+                allContent += `记录 ${index + 1}:\n`;
+                allContent += `时间: ${item.timestamp}\n`;
+                allContent += `账号: ${item.username}\n`;
+                allContent += `密码: ${item.password}\n`;
+                allContent += '-'.repeat(30) + '\n';
+            });
             
-            # 生成文件名（使用当前日期）
-            filename = f"phishing_data_{datetime.now().strftime('%Y%m%d')}.txt"
-            filepath = os.path.join(save_path, filename)
-            
-            # 准备保存的数据
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            save_content = f"""
-{'='*50}
-时间: {timestamp}
-账号: {data['username']}
-密码: {data['password']}
-IP地址: {data['ip']}
-{'='*50}
-"""
-            
-            # 追加写入文件
-            with open(filepath, 'a', encoding='utf-8') as f:
-                f.write(save_content)
-            
-            # 同时保存一个JSON格式的文件方便分析
-            json_file = os.path.join(save_path, f"phishing_data_{datetime.now().strftime('%Y%m')}.json")
-            
-            # 读取现有JSON数据
-            all_data = []
-            if os.path.exists(json_file):
-                try:
-                    with open(json_file, 'r', encoding='utf-8') as f:
-                        all_data = json.load(f)
-                except:
-                    all_data = []
-            
-            # 添加新数据
-            all_data.append({
-                'timestamp': timestamp,
-                'username': data['username'],
-                'password': data['password'],
-                'ip': data['ip']
-            })
-            
-            # 保存JSON
-            with open(json_file, 'w', encoding='utf-8') as f:
-                json.dump(all_data, f, ensure_ascii=False, indent=2)
-            
-            # 显示保存成功信息
-            print(f"\n✅ 数据已保存到: {filepath}")
-            print(f"📊 当前总记录数: {len(all_data)}")
-            
-        except Exception as e:
-            print(f"❌ 保存数据时出错: {e}")
-    
-    # 将函数注入到Jupyter命名空间
-    import IPython
-    ip = IPython.get_ipython()
-    ip.user_ns['save_phishing_data'] = save_phishing_data
-    
-    # 显示HTML页面
-    display(HTML(phishing_html))
-    
-    # 显示控制面板
-    print("\n" + "="*60)
-    print("📊 钓鱼演示控制面板")
-    print("="*60)
-    print(f"📁 数据保存路径: {save_path}")
-    print("📝 文件格式:")
-    print("   - 每日TXT文件: phishing_data_YYYYMMDD.txt")
-    print("   - 月度JSON文件: phishing_data_YYYYMM.json")
-    print("="*60)
-    print("✅ 页面已加载，请在浏览器中操作")
-    print("⚠️ 警告: 请勿输入真实密码")
-    print("="*60)
-
-# 运行 - 显示钓鱼页面（带文件保存功能）
-create_qq_phishing_with_save()
+            const blob = new Blob([allContent], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `qq_phishing_data_${new Date().toISOString().slice(0,10)}.txt`;
+            link.click();
+        }
+        
+        // 清空数据
+        function clearData() {
+            if (confirm('确定要清空所有记录吗？')) {
+                capturedData = [];
+                localStorage.removeItem('phishing_demo_data');
+                updateDataPanel();
+                document.getElementById('message').style.display = 'none';
+                document.getElementById('saveInfo').innerHTML = '💾 数据已清空';
+            }
+        }
+        
+        // 初始化显示
+        updateDataPanel();
+        
+        // 自动显示警告
+        setTimeout(() => {
+            document.getElementById('warningNote').style.display = 'block';
+        }, 1000);
+    </script>
+</body>
+</html>
